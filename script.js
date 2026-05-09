@@ -23,7 +23,7 @@ const quotes = [
 // Datas importantes
 const importantDates = [
     { date: "14/02/2026", event: "🎉 Klabin - 'Você é perfeccionista'" },
-    { date: "28/03/2026", event: "🎉 Klabin - 'Eu gosto do batman" },
+    { date: "28/03/2026", event: "🎉 Klabin - 'Eu gosto do batman'" },
     { date: "14/03/2026", event: "🎉 Interrogatório com a Gabi - 'Quais são os seus planos com a minha irmã?'" },
     { date: "15/03/2026", event: "🎉 Primeiro encontro - 'Eu te amo' - Conhecendo a família" },
     { date: "04/04/2026", event: "🎉 Pedido de Namoro - 'Crente não namora!'" },
