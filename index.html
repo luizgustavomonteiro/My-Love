@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Nosso Álbum - Para Meu Amor</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header com contador de dias -->
+    <header class="header">
+        <div class="container">
+            <h1 class="title">✨ Our history ✨</h1>
+            <div class="counter-container">
+                <p class="counter-label">Officially Together Since - 04/04/2026</p>
+                <p class="counter-number" id="daysCounter">0</p>
+                <p class="counter-label">days</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Seção de frases especiais -->
+    <section class="quotes-section">
+        <div class="container">
+            <h2 class="section-title">💭 Cup Phrases</h2>
+            <div class="quotes-grid" id="quotesGrid">
+                <!-- Frases serão inseridas via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de datas importantes -->
+    <section class="dates-section">
+        <div class="container">
+            <h2 class="section-title">📅 Some Important Moments</h2>
+            <div class="timeline" id="timeline">
+                <!-- Datas serão inseridas via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção do álbum de fotos -->
+    <section class="album-section">
+        <div class="container">
+            <h2 class="section-title">📸 Our Memories</h2>
+            <div class="gallery" id="gallery">
+                <!-- Fotos serão inseridas via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal para visualizar foto ampliada -->
+    <div class="modal" id="imageModal">
+        <span class="modal-close" id="modalClose">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div class="modal-caption" id="modalCaption"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>❤️ Não me instes para que te abandone, e deixe de seguir-te; porque aonde quer que tu fores irei eu, e onde quer que pousares, ali pousarei eu; o teu povo é o meu povo, o teu Deus é o meu Deus; Onde quer que morreres morrerei eu, e ali serei sepultada. Faça-me assim o Senhor, e outro tanto, se outra coisa que não seja a morte me separar de ti.   Rute 1:16,17 ❤️</p>
+            <p class="signature">Agradeço a Deus todos os dias por você estar em minha vida. E oro para que Ele continue sendo honrado através desse relacionamento, a fim de que Ele cresça!</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
