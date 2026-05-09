@@ -6,14 +6,14 @@ const startDate = new Date(2026, 3, 4); // ALTERE: coloque a data que começaram
 
 // Frases especiais
 const quotes = [
-    { text: "Ele é ruizinho de bíblia.", date: "2026" },
-    { text: "Que o Senhor seja o centro desse relacionamento.", date: "2026" },
+    { text: "Ele é ruinzinho de bíblia.", date: "2026" },
+    { text: "Que o Senhor seja o Centro desse Relacionamento.", date: "2026" },
     { text: "Se você não faz acontecer, você vê acontecendo.", date: "2026" },
     { text: "A vida com você é melhor que um filme.", date: "2026" },
     { text: "Mete a cara.", date: "2026" },
     { text: "Permanecer um ao lado do outro não importa o que aconteça.", date: "2026" },
     { text: "Da minha parte, há sempre uma entrelinha escrita 'eu amo você'.", date: "2026" },
-    { text: "O resto virá naturalmnte. O ponto não é o que se faz, é com quem se faz." , date: "2026" },
+    { text: "O resto virá naturalmente. O ponto não é o que se faz, é com quem se faz." , date: "2026" },
     { text: "Só se arrisca quem quer viver o extraordinário." , date: "2026" },
     { text: "A variável 'distância' é muito pequena perto da variável 'vontade'" , date: "2026" },
     
