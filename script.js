@@ -49,87 +49,116 @@ const photos = [
 ];
 
 // ============================================
-// VÍDEO DE FUNDO COM AUTOPLAY (SOLUÇÃO QUE FUNCIONA)
+// PLAYER DE MÚSICA - VERSÃO MOBILE/DESKTOP
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Criar vídeo escondido
-    const videoHTML = `
-        <video id="bgMusicVideo" class="bg-video-player" loop playsinline autoplay>
+    // Criar player de boas-vindas
+    const playerHTML = `
+        <div class="welcome-player" id="welcomePlayer">
+            <div class="welcome-card">
+                <span class="welcome-icon">🎵</span>
+                <h3>Toque para ouvir a música especial</h3>
+                <button class="welcome-btn" id="startMusicBtn">▶️ Tocar Música</button>
+                <p class="welcome-hint">Clique no botão para ativar o som</p>
+            </div>
+        </div>
+        <video id="bgMusic" class="bg-video-player" loop playsinline>
             <source src="DeDeus.mp4" type="video/mp4">
         </video>
-        <div class="music-note playing" id="musicNote">
+        <div class="music-note" id="musicNote" style="display: none;">
             <span id="musicNoteIcon">🎵</span>
             <div class="music-tooltip" id="musicTooltip">Música tocando!</div>
         </div>
     `;
     
-    document.body.insertAdjacentHTML('beforeend', videoHTML);
+    document.body.insertAdjacentHTML('beforeend', playerHTML);
     
+    const welcomePlayer = document.getElementById('welcomePlayer');
+    const startMusicBtn = document.getElementById('startMusicBtn');
     const musicNote = document.getElementById('musicNote');
     const musicNoteIcon = document.getElementById('musicNoteIcon');
     const musicTooltip = document.getElementById('musicTooltip');
-    const bgVideo = document.getElementById('bgMusicVideo');
+    const bgMusic = document.getElementById('bgMusic');
     
-    let isPlaying = true;
+    let isPlaying = false;
     
-    if (bgVideo) {
-        bgVideo.volume = 0.3;
-        
-        // Tenta tocar
-        const playPromise = bgVideo.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                console.log('🎵 Música tocando automaticamente!');
+    if (bgMusic) {
+        bgMusic.volume = 0.4;
+    }
+    
+    function startMusic() {
+        if (bgMusic) {
+            bgMusic.play().then(() => {
+                isPlaying = true;
                 musicNoteIcon.textContent = '🎵';
                 musicTooltip.textContent = 'Música tocando!';
-            }).catch(error => {
-                console.log('Autoplay bloqueado:', error);
-                musicNoteIcon.textContent = '🔇';
-                musicTooltip.textContent = 'Clique para ouvir';
-                musicNote.classList.remove('playing');
-                isPlaying = false;
-                
-                // No primeiro clique, ativa
-                const activateSound = function() {
-                    bgVideo.play();
-                    bgVideo.muted = false;
-                    musicNoteIcon.textContent = '🎵';
-                    musicTooltip.textContent = 'Música tocando!';
-                    musicNote.classList.add('playing');
-                    isPlaying = true;
-                    document.removeEventListener('click', activateSound);
-                    document.removeEventListener('touchstart', activateSound);
-                };
-                document.addEventListener('click', activateSound);
-                document.addEventListener('touchstart', activateSound);
+                musicNote.classList.add('playing');
+                welcomePlayer.style.display = 'none';
+                musicNote.style.display = 'flex';
+                console.log('🎵 Música iniciada!');
+            }).catch((error) => {
+                console.log('Erro:', error);
+                alert('Clique novamente no botão para tocar a música!');
             });
         }
     }
     
-    // Controle play/pause
-    musicNote.addEventListener('click', function(e) {
-        e.stopPropagation();
-        if (isPlaying) {
-            bgVideo.pause();
+    function pauseMusic() {
+        if (bgMusic) {
+            bgMusic.pause();
             isPlaying = false;
             musicNoteIcon.textContent = '⏸️';
             musicTooltip.textContent = 'Pausado';
             musicNote.classList.remove('playing');
-        } else {
-            bgVideo.play();
+        }
+    }
+    
+    function resumeMusic() {
+        if (bgMusic) {
+            bgMusic.play();
             isPlaying = true;
             musicNoteIcon.textContent = '🎵';
             musicTooltip.textContent = 'Música tocando!';
             musicNote.classList.add('playing');
         }
-    });
+    }
+    
+    if (startMusicBtn) {
+        startMusicBtn.addEventListener('click', startMusic);
+    }
+    
+    if (musicNote) {
+        musicNote.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (isPlaying) {
+                pauseMusic();
+            } else {
+                resumeMusic();
+            }
+        });
+    }
+    
+    // Tentar autoplay no desktop
+    setTimeout(() => {
+        if (bgMusic) {
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                musicNoteIcon.textContent = '🎵';
+                musicTooltip.textContent = 'Música tocando!';
+                musicNote.classList.add('playing');
+                if (welcomePlayer) welcomePlayer.style.display = 'none';
+                if (musicNote) musicNote.style.display = 'flex';
+            }).catch(() => {
+                console.log('Aguardando clique do usuário');
+            });
+        }
+    }, 500);
     
     // Continuar tocando quando voltar à página
     document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && isPlaying) {
-            bgVideo.play().catch(e => console.log('Erro ao retomar:', e));
+        if (!document.hidden && isPlaying && bgMusic) {
+            bgMusic.play().catch(e => console.log('Erro ao retomar:', e));
         }
     });
 });
@@ -231,15 +260,16 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 2500);
 }
 
-const toastStyle = document.createElement('style');
-toastStyle.textContent = `
+const style = document.createElement('style');
+style.textContent = `
     @keyframes fadeInUp {
         from { opacity: 0; transform: translate(-50%, 20px); }
         to { opacity: 1; transform: translate(-50%, 0); }
     }
 `;
-document.head.appendChild(toastStyle);
+document.head.appendChild(style);
 
+// Inicializar
 updateDaysCounter();
 loadQuotes();
 loadTimeline();
