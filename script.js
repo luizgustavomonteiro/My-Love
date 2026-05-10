@@ -1,8 +1,8 @@
 // CONFIGURAÇÃO - COLOQUE SUAS INFORMAÇÕES AQUI
 
 // Data de início do relacionamento (ano, mês, dia)
-// Mês em JS: 0 = Janeiro, 1 = Fevereiro... então 2 = Março (se for março, use 2)
-const startDate = new Date(2026, 3, 4); // ALTERE: coloque a data que começaram
+// Mês em JS: 0 = Janeiro, 1 = Fevereiro... então 3 = Abril
+const startDate = new Date(2026, 3, 4);
 
 // Frases especiais
 const quotes = [
@@ -13,11 +13,9 @@ const quotes = [
     { text: "Mete a cara.", date: "2026" },
     { text: "Permanecer um ao lado do outro não importa o que aconteça.", date: "2026" },
     { text: "Da minha parte, há sempre uma entrelinha escrita 'eu amo você'.", date: "2026" },
-    { text: "O resto virá naturalmente. O ponto não é o que se faz, é com quem se faz." , date: "2026" },
-    { text: "Só se arrisca quem quer viver o extraordinário." , date: "2026" },
-    { text: "A variável 'distância' é muito pequena perto da variável 'vontade'" , date: "2026" },
-    
-    // ADICIONE MAIS FRASES AQUI
+    { text: "O resto virá naturalmente. O ponto não é o que se faz, é com quem se faz.", date: "2026" },
+    { text: "Só se arrisca quem quer viver o extraordinário.", date: "2026" },
+    { text: "A variável 'distância' é muito pequena perto da variável 'vontade'", date: "2026" },
 ];
 
 // Datas importantes
@@ -28,10 +26,9 @@ const importantDates = [
     { date: "15/03/2026", event: "🎉 Primeiro encontro - 'Eu te amo' - Conhecendo a família" },
     { date: "04/04/2026", event: "🎉 Pedido de Namoro - 'Crente não namora!'" },
     { date: "04/05/2026", event: "🎉 Aniversário de namoro (1º mês)" }
-    // ADICIONE MAIS DATAS AQUI
 ];
 
-// Fotos - Coloque suas fotos na pasta images/
+// Fotos
 const photos = [
     { src: "img/01.jpeg", caption: "Nosso primeiro Piquenique 💕" },
     { src: "img/02.jpeg", caption: "Eu amo 'Panco'" },
@@ -50,21 +47,159 @@ const photos = [
     { src: "img/16.jpeg", caption: "Para o Post' ❤️" },
     { src: "img/17.jpeg", caption: "Obrigado Via Mobilidade' ❤️" },
     { src: "img/18.jpeg", caption: "Aniversário! - 'Kennya Faltou' ❤️"}
-    // ADICIONE MAIS FOTOS AQUI
 ];
 
+// ============================================
+// PLAYER DE MÚSICA COM AUTOPLAY FORÇADO
+// ============================================
+
+// Aguardar o DOM carregar
+document.addEventListener('DOMContentLoaded', function() {
+    // Criar elemento da nota musical
+    const musicNoteHTML = `
+        <div class="music-note playing" id="musicNote">
+            <span id="musicNoteIcon">🎵</span>
+            <div class="music-tooltip" id="musicTooltip">Tocando...</div>
+        </div>
+        <audio id="bgMusic" loop preload="auto">
+            <source src="DeDeus.mp4" type="audio/mp4">
+            <source src="DeDeus.mp3" type="audio/mpeg">
+        </audio>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', musicNoteHTML);
+    
+    // Elementos
+    const musicNote = document.getElementById('musicNote');
+    const musicNoteIcon = document.getElementById('musicNoteIcon');
+    const musicTooltip = document.getElementById('musicTooltip');
+    const bgMusic = document.getElementById('bgMusic');
+    
+    let isPlaying = false;
+    let autoplayAttempted = false;
+    
+    // Configurar volume
+    bgMusic.volume = 0.4;
+    
+    // Função para tocar
+    function playMusic() {
+        bgMusic.play().then(() => {
+            isPlaying = true;
+            musicNoteIcon.textContent = '🎵';
+            musicTooltip.textContent = 'Tocando...';
+            musicNote.classList.add('playing');
+            console.log('Música tocando');
+        }).catch((error) => {
+            console.log('Erro ao tocar:', error);
+            isPlaying = false;
+            musicNoteIcon.textContent = '🔇';
+            musicTooltip.textContent = 'Clique para tocar';
+            musicNote.classList.remove('playing');
+        });
+    }
+    
+    // Função para pausar
+    function pauseMusic() {
+        bgMusic.pause();
+        isPlaying = false;
+        musicNoteIcon.textContent = '🎵';
+        musicTooltip.textContent = 'Pausado';
+        musicNote.classList.remove('playing');
+    }
+    
+    // MÉTODO 1: Tentar autoplay imediatamente
+    function attemptAutoplay() {
+        if (autoplayAttempted) return;
+        autoplayAttempted = true;
+        
+        // Recarregar o áudio para garantir
+        bgMusic.load();
+        
+        // Pequeno delay para garantir que tudo está carregado
+        setTimeout(() => {
+            playMusic();
+        }, 100);
+    }
+    
+    // MÉTODO 2: Tentar autoplay em diferentes eventos
+    function strongAutoplayAttempt() {
+        playMusic();
+    }
+    
+    // Tentar autoplay imediatamente
+    attemptAutoplay();
+    
+    // Também tentar quando a página terminar de carregar completamente
+    window.addEventListener('load', function() {
+        setTimeout(strongAutoplayAttempt, 500);
+    });
+    
+    // Tentar em qualquer clique do usuário (caso o autoplay seja bloqueado)
+    const tryOnInteraction = function() {
+        if (!isPlaying) {
+            playMusic();
+        }
+        // Remover após primeira interação
+        document.removeEventListener('click', tryOnInteraction);
+        document.removeEventListener('touchstart', tryOnInteraction);
+        document.removeEventListener('keydown', tryOnInteraction);
+    };
+    
+    // Se após 2 segundos não estiver tocando, aguarda interação
+    setTimeout(() => {
+        if (!isPlaying) {
+            musicNoteIcon.textContent = '🔇';
+            musicTooltip.textContent = 'Clique para tocar';
+            musicNote.classList.remove('playing');
+            document.addEventListener('click', tryOnInteraction);
+            document.addEventListener('touchstart', tryOnInteraction);
+            document.addEventListener('keydown', tryOnInteraction);
+        }
+    }, 2000);
+    
+    // Clique na nota musical
+    musicNote.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (isPlaying) {
+            pauseMusic();
+        } else {
+            playMusic();
+        }
+    });
+    
+    // Salvar preferência de volume
+    const savedVolume = localStorage.getItem('musicVolume');
+    if (savedVolume) {
+        bgMusic.volume = parseFloat(savedVolume);
+    }
+    
+    // Pausar quando sair da página, voltar quando entrar
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && isPlaying) {
+            bgMusic.pause();
+        } else if (!document.hidden && isPlaying) {
+            bgMusic.play().catch(e => console.log('Erro ao retomar:', e));
+        }
+    });
+});
+
+// ============================================
+// FUNÇÕES DO ÁLBUM
+// ============================================
 
 // Calcular dias juntos
 function updateDaysCounter() {
     const today = new Date();
     const diffTime = Math.abs(today - startDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    document.getElementById('daysCounter').textContent = diffDays;
+    const counterElement = document.getElementById('daysCounter');
+    if (counterElement) counterElement.textContent = diffDays;
 }
 
 // Carregar frases
 function loadQuotes() {
     const quotesGrid = document.getElementById('quotesGrid');
+    if (!quotesGrid) return;
     quotesGrid.innerHTML = quotes.map(quote => `
         <div class="quote-card" onclick="showToast('${quote.text.replace(/'/g, "\\'")}')">
             <p class="quote-text">"${quote.text}"</p>
@@ -73,9 +208,10 @@ function loadQuotes() {
     `).join('');
 }
 
-// Carregar timeline de datas
+// Carregar timeline
 function loadTimeline() {
     const timeline = document.getElementById('timeline');
+    if (!timeline) return;
     timeline.innerHTML = importantDates.map(item => `
         <div class="timeline-item" onclick="showToast('${item.event} em ${item.date}')">
             <div class="timeline-date">📅 ${item.date}</div>
@@ -84,9 +220,10 @@ function loadTimeline() {
     `).join('');
 }
 
-// Carregar galeria de fotos
+// Carregar galeria
 function loadGallery() {
     const gallery = document.getElementById('gallery');
+    if (!gallery) return;
     gallery.innerHTML = photos.map((photo, index) => `
         <div class="gallery-item" onclick="openModal(${index})">
             <img src="${photo.src}" alt="${photo.caption}" loading="lazy">
@@ -97,31 +234,38 @@ function loadGallery() {
     `).join('');
 }
 
-// Modal para fotos
+// Modal
 function openModal(index) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     const caption = document.getElementById('modalCaption');
     
-    modal.style.display = "block";
-    modalImg.src = photos[index].src;
-    caption.innerHTML = photos[index].caption;
-}
-
-// Fechar modal
-document.getElementById('modalClose').onclick = function() {
-    document.getElementById('imageModal').style.display = "none";
-}
-
-document.getElementById('imageModal').onclick = function(e) {
-    if (e.target === this) {
-        this.style.display = "none";
+    if (modal && modalImg && caption) {
+        modal.style.display = "block";
+        modalImg.src = photos[index].src;
+        caption.innerHTML = photos[index].caption;
     }
 }
 
-// Toast simples (alert bonitinho)
+// Fechar modal
+const modalClose = document.getElementById('modalClose');
+if (modalClose) {
+    modalClose.onclick = function() {
+        document.getElementById('imageModal').style.display = "none";
+    };
+}
+
+const imageModal = document.getElementById('imageModal');
+if (imageModal) {
+    imageModal.onclick = function(e) {
+        if (e.target === this) {
+            this.style.display = "none";
+        }
+    };
+}
+
+// Toast
 function showToast(message) {
-    // Criar elemento toast
     const toast = document.createElement('div');
     toast.textContent = message;
     toast.style.cssText = `
@@ -137,30 +281,21 @@ function showToast(message) {
         z-index: 2000;
         animation: fadeInUp 0.3s ease;
         white-space: nowrap;
+        font-family: 'Poppins', sans-serif;
     `;
-    
     document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 2000);
+    setTimeout(() => toast.remove(), 2000);
 }
 
-// Adicionar estilo da animação do toast
-const style = document.createElement('style');
-style.textContent = `
+// Estilo do toast
+const toastStyle = document.createElement('style');
+toastStyle.textContent = `
     @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translate(-50%, 20px);
-        }
-        to {
-            opacity: 1;
-            transform: translate(-50%, 0);
-        }
+        from { opacity: 0; transform: translate(-50%, 20px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(toastStyle);
 
 // Inicializar
 updateDaysCounter();
