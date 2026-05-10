@@ -1,7 +1,6 @@
 // CONFIGURAÇÃO - COLOQUE SUAS INFORMAÇÕES AQUI
 
 // Data de início do relacionamento (ano, mês, dia)
-// Mês em JS: 0 = Janeiro, 1 = Fevereiro... então 3 = Abril
 const startDate = new Date(2026, 3, 4);
 
 // Frases especiais
@@ -50,135 +49,87 @@ const photos = [
 ];
 
 // ============================================
-// PLAYER DE MÚSICA COM AUTOPLAY FORÇADO
+// VÍDEO DE FUNDO COM AUTOPLAY (SOLUÇÃO QUE FUNCIONA)
 // ============================================
 
-// Aguardar o DOM carregar
 document.addEventListener('DOMContentLoaded', function() {
-    // Criar elemento da nota musical
-    const musicNoteHTML = `
+    // Criar vídeo escondido
+    const videoHTML = `
+        <video id="bgMusicVideo" class="bg-video-player" loop playsinline autoplay>
+            <source src="DeDeus.mp4" type="video/mp4">
+        </video>
         <div class="music-note playing" id="musicNote">
             <span id="musicNoteIcon">🎵</span>
-            <div class="music-tooltip" id="musicTooltip">Tocando...</div>
+            <div class="music-tooltip" id="musicTooltip">Música tocando!</div>
         </div>
-        <audio id="bgMusic" loop preload="auto">
-            <source src="DeDeus.mp4" type="audio/mp4">
-            <source src="DeDeus.mp3" type="audio/mpeg">
-        </audio>
     `;
     
-    document.body.insertAdjacentHTML('beforeend', musicNoteHTML);
+    document.body.insertAdjacentHTML('beforeend', videoHTML);
     
-    // Elementos
     const musicNote = document.getElementById('musicNote');
     const musicNoteIcon = document.getElementById('musicNoteIcon');
     const musicTooltip = document.getElementById('musicTooltip');
-    const bgMusic = document.getElementById('bgMusic');
+    const bgVideo = document.getElementById('bgMusicVideo');
     
-    let isPlaying = false;
-    let autoplayAttempted = false;
+    let isPlaying = true;
     
-    // Configurar volume
-    bgMusic.volume = 0.4;
-    
-    // Função para tocar
-    function playMusic() {
-        bgMusic.play().then(() => {
-            isPlaying = true;
-            musicNoteIcon.textContent = '🎵';
-            musicTooltip.textContent = 'Tocando...';
-            musicNote.classList.add('playing');
-            console.log('Música tocando');
-        }).catch((error) => {
-            console.log('Erro ao tocar:', error);
-            isPlaying = false;
-            musicNoteIcon.textContent = '🔇';
-            musicTooltip.textContent = 'Clique para tocar';
-            musicNote.classList.remove('playing');
-        });
-    }
-    
-    // Função para pausar
-    function pauseMusic() {
-        bgMusic.pause();
-        isPlaying = false;
-        musicNoteIcon.textContent = '🎵';
-        musicTooltip.textContent = 'Pausado';
-        musicNote.classList.remove('playing');
-    }
-    
-    // MÉTODO 1: Tentar autoplay imediatamente
-    function attemptAutoplay() {
-        if (autoplayAttempted) return;
-        autoplayAttempted = true;
+    if (bgVideo) {
+        bgVideo.volume = 0.3;
         
-        // Recarregar o áudio para garantir
-        bgMusic.load();
+        // Tenta tocar
+        const playPromise = bgVideo.play();
         
-        // Pequeno delay para garantir que tudo está carregado
-        setTimeout(() => {
-            playMusic();
-        }, 100);
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log('🎵 Música tocando automaticamente!');
+                musicNoteIcon.textContent = '🎵';
+                musicTooltip.textContent = 'Música tocando!';
+            }).catch(error => {
+                console.log('Autoplay bloqueado:', error);
+                musicNoteIcon.textContent = '🔇';
+                musicTooltip.textContent = 'Clique para ouvir';
+                musicNote.classList.remove('playing');
+                isPlaying = false;
+                
+                // No primeiro clique, ativa
+                const activateSound = function() {
+                    bgVideo.play();
+                    bgVideo.muted = false;
+                    musicNoteIcon.textContent = '🎵';
+                    musicTooltip.textContent = 'Música tocando!';
+                    musicNote.classList.add('playing');
+                    isPlaying = true;
+                    document.removeEventListener('click', activateSound);
+                    document.removeEventListener('touchstart', activateSound);
+                };
+                document.addEventListener('click', activateSound);
+                document.addEventListener('touchstart', activateSound);
+            });
+        }
     }
     
-    // MÉTODO 2: Tentar autoplay em diferentes eventos
-    function strongAutoplayAttempt() {
-        playMusic();
-    }
-    
-    // Tentar autoplay imediatamente
-    attemptAutoplay();
-    
-    // Também tentar quando a página terminar de carregar completamente
-    window.addEventListener('load', function() {
-        setTimeout(strongAutoplayAttempt, 500);
-    });
-    
-    // Tentar em qualquer clique do usuário (caso o autoplay seja bloqueado)
-    const tryOnInteraction = function() {
-        if (!isPlaying) {
-            playMusic();
-        }
-        // Remover após primeira interação
-        document.removeEventListener('click', tryOnInteraction);
-        document.removeEventListener('touchstart', tryOnInteraction);
-        document.removeEventListener('keydown', tryOnInteraction);
-    };
-    
-    // Se após 2 segundos não estiver tocando, aguarda interação
-    setTimeout(() => {
-        if (!isPlaying) {
-            musicNoteIcon.textContent = '🔇';
-            musicTooltip.textContent = 'Clique para tocar';
-            musicNote.classList.remove('playing');
-            document.addEventListener('click', tryOnInteraction);
-            document.addEventListener('touchstart', tryOnInteraction);
-            document.addEventListener('keydown', tryOnInteraction);
-        }
-    }, 2000);
-    
-    // Clique na nota musical
+    // Controle play/pause
     musicNote.addEventListener('click', function(e) {
         e.stopPropagation();
         if (isPlaying) {
-            pauseMusic();
+            bgVideo.pause();
+            isPlaying = false;
+            musicNoteIcon.textContent = '⏸️';
+            musicTooltip.textContent = 'Pausado';
+            musicNote.classList.remove('playing');
         } else {
-            playMusic();
+            bgVideo.play();
+            isPlaying = true;
+            musicNoteIcon.textContent = '🎵';
+            musicTooltip.textContent = 'Música tocando!';
+            musicNote.classList.add('playing');
         }
     });
     
-    // Salvar preferência de volume
-    const savedVolume = localStorage.getItem('musicVolume');
-    if (savedVolume) {
-        bgMusic.volume = parseFloat(savedVolume);
-    }
-    
-    // Pausar quando sair da página, voltar quando entrar
+    // Continuar tocando quando voltar à página
     document.addEventListener('visibilitychange', () => {
-        if (document.hidden && isPlaying) {
-            bgMusic.pause();
-        } else if (!document.hidden && isPlaying) {
-            bgMusic.play().catch(e => console.log('Erro ao retomar:', e));
+        if (!document.hidden && isPlaying) {
+            bgVideo.play().catch(e => console.log('Erro ao retomar:', e));
         }
     });
 });
@@ -187,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // FUNÇÕES DO ÁLBUM
 // ============================================
 
-// Calcular dias juntos
 function updateDaysCounter() {
     const today = new Date();
     const diffTime = Math.abs(today - startDate);
@@ -196,7 +146,6 @@ function updateDaysCounter() {
     if (counterElement) counterElement.textContent = diffDays;
 }
 
-// Carregar frases
 function loadQuotes() {
     const quotesGrid = document.getElementById('quotesGrid');
     if (!quotesGrid) return;
@@ -208,7 +157,6 @@ function loadQuotes() {
     `).join('');
 }
 
-// Carregar timeline
 function loadTimeline() {
     const timeline = document.getElementById('timeline');
     if (!timeline) return;
@@ -220,7 +168,6 @@ function loadTimeline() {
     `).join('');
 }
 
-// Carregar galeria
 function loadGallery() {
     const gallery = document.getElementById('gallery');
     if (!gallery) return;
@@ -234,7 +181,6 @@ function loadGallery() {
     `).join('');
 }
 
-// Modal
 function openModal(index) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
@@ -247,7 +193,6 @@ function openModal(index) {
     }
 }
 
-// Fechar modal
 const modalClose = document.getElementById('modalClose');
 if (modalClose) {
     modalClose.onclick = function() {
@@ -264,7 +209,6 @@ if (imageModal) {
     };
 }
 
-// Toast
 function showToast(message) {
     const toast = document.createElement('div');
     toast.textContent = message;
@@ -284,10 +228,9 @@ function showToast(message) {
         font-family: 'Poppins', sans-serif;
     `;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
+    setTimeout(() => toast.remove(), 2500);
 }
 
-// Estilo do toast
 const toastStyle = document.createElement('style');
 toastStyle.textContent = `
     @keyframes fadeInUp {
@@ -297,7 +240,6 @@ toastStyle.textContent = `
 `;
 document.head.appendChild(toastStyle);
 
-// Inicializar
 updateDaysCounter();
 loadQuotes();
 loadTimeline();
